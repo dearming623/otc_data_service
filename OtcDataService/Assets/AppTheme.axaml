@@ -24,6 +24,8 @@
 
     <CornerRadius x:Key="CardRadius">8</CornerRadius>
     <CornerRadius x:Key="ControlRadius">6</CornerRadius>
+    <CornerRadius x:Key="ControlRadiusTrailing">0,6,6,0</CornerRadius>
+    <CornerRadius x:Key="ControlRadiusLeading">6,0,0,6</CornerRadius>
   </Styles.Resources>
 
   <!-- Primary button -->
@@ -144,6 +146,15 @@
     <Setter Property="BorderThickness" Value="1" />
     <Setter Property="CornerRadius" Value="{StaticResource ControlRadius}" />
     <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+    <Setter Property="FormatString" Value="0" />
+    <Setter Property="Increment" Value="1" />
+    <Setter Property="ParsingNumberStyle" Value="Integer" />
+  </Style>
+  <Style Selector="NumericUpDown.appInput /template/ ButtonSpinner:right /template/ RepeatButton#PART_DecreaseButton /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="CornerRadius" Value="{StaticResource ControlRadiusTrailing}" />
+  </Style>
+  <Style Selector="NumericUpDown.appInput /template/ ButtonSpinner:left /template/ RepeatButton#PART_IncreaseButton /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="CornerRadius" Value="{StaticResource ControlRadiusLeading}" />
   </Style>
 
   <!-- Card container -->

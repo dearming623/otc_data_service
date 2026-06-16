@@ -9,8 +9,11 @@
     <RootNamespace>OtcDataService</RootNamespace>
     <AssemblyName>OtcDataService</AssemblyName>
     <Version>0.1.0</Version>
-    <!-- 32-bit required: market ODBC DSN/drivers are typically 32-bit (SysWOW64 odbcad32.exe) -->
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+    <ApplicationIcon>Assets\app-icon.ico</ApplicationIcon>
+    <!-- ODBC DSN bitness must match process: use x86 build for 32-bit DSN, x64 for 64-bit DSN -->
     <PlatformTarget>AnyCPU</PlatformTarget>
+    <RuntimeIdentifiers>win-x86;win-x64</RuntimeIdentifiers>
   </PropertyGroup>
 
   <ItemGroup>

@@ -8,7 +8,7 @@
         d:DesignHeight="640"
         x:Class="OtcDataService.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
-        Icon="/Assets/ic_app_moleq.ico"
+        Icon="/Assets/app-icon.ico"
         Title="{Binding WindowTitle}"
         Width="960"
         Height="640"

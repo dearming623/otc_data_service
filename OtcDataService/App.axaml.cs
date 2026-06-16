@@ -51,7 +51,7 @@ public partial class App : Application
 
             var trayIcon = new TrayIcon
             {
-                Icon = new WindowIcon(AssetLoader.Open(new Uri("avares://OtcDataService/Assets/ic_app_moleq.ico"))),
+                Icon = new WindowIcon(AssetLoader.Open(new Uri("avares://OtcDataService/Assets/app-icon.ico"))),
                 ToolTipText = AppInfo.WindowTitle,
                 Menu = new NativeMenu
                 {

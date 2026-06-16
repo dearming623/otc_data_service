@@ -1,0 +1,8 @@
+HarvestedFiles.wxs
+HarvestedFiles-x86.wxs
+HarvestedFiles-x64.wxs
+bin/
+obj/
+[Pp]ublish-staging/
+[Pp]ublish-staging-x86/
+[Pp]ublish-staging-x64/

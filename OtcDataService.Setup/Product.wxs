@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <?if $(var.Platform) = x64 ?>
+  <?define Win64 = "yes" ?>
+  <?define ProgramFilesRoot = "ProgramFiles64Folder" ?>
+  <?define ProductDisplayName = "OTC Data Service (64-bit)" ?>
+  <?define RegistryKey = "Software\MoleQ\OtcDataService-x64" ?>
+  <?define DesktopShortcutGuid = "D1A2B3C4-E5F6-4A7B-8C9D-0E1F2A3B4C5D" ?>
+  <?define StartMenuShortcutGuid = "E2B3C4D5-F6A7-4B8C-9D0E-1F2A3B4C5D6E" ?>
+  <?else ?>
+  <?define Win64 = "no" ?>
+  <?define ProgramFilesRoot = "ProgramFilesFolder" ?>
+  <?define ProductDisplayName = "OTC Data Service (32-bit)" ?>
+  <?define RegistryKey = "Software\MoleQ\OtcDataService" ?>
+  <?define DesktopShortcutGuid = "B1C2D3E4-F5A6-4B7C-8D9E-0F1A2B3C4D5E" ?>
+  <?define StartMenuShortcutGuid = "C2D3E4F5-A6B7-4C8D-9E0F-1A2B3C4D5E6F" ?>
+  <?endif ?>
+
+  <Product
+    Id="*"
+    Name="$(var.ProductDisplayName)"
+    Language="1033"
+    Version="0.1.0.0"
+    Manufacturer="MoleQ Inc."
+    UpgradeCode="A8F3C2D1-4E5B-6A7C-8D9E-0F1A2B3C4D5E">
+    <Package
+      InstallerVersion="500"
+      Compressed="yes"
+      InstallScope="perMachine"
+      Platform="$(var.Platform)"
+      Description="OTC Data Service desktop client"
+      Comments="OTC Data Service v0.1.0" />
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+    <MediaTemplate EmbedCab="yes" />
+
+    <Feature Id="ProductFeature" Title="OTC Data Service" Level="1">
+      <ComponentGroupRef Id="PublishedFiles" />
+      <ComponentRef Id="DesktopShortcutComponent" />
+      <ComponentRef Id="StartMenuShortcutComponent" />
+    </Feature>
+
+    <WixVariable Id="WixUILicenseRtf" Value="License.rtf" />
+    <UI>
+      <Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR" />
+      <UIRef Id="WixUI_InstallDir" />
+    </UI>
+
+    <Icon Id="ControlPanelIcon" SourceFile="$(var.PublishDir)\OtcDataService.exe" />
+    <Icon Id="AppDesktopIcon" SourceFile="$(var.PublishDir)\OtcDataService.exe" />
+    <Icon Id="AppStartMenuIcon" SourceFile="$(var.PublishDir)\OtcDataService.exe" />
+    <Property Id="ARPPRODUCTICON" Value="ControlPanelIcon" />
+  </Product>
+
+  <Fragment>
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="DesktopFolder" Name="Desktop" />
+      <Directory Id="ProgramMenuFolder" Name="Programs" />
+      <Directory Id="$(var.ProgramFilesRoot)">
+        <Directory Id="INSTALLFOLDER" Name="MoleQ">
+          <Directory Id="INSTALLDIR" Name="OtcDataService" />
+        </Directory>
+      </Directory>
+    </Directory>
+  </Fragment>
+
+  <Fragment>
+    <DirectoryRef Id="INSTALLDIR">
+      <Component Id="DesktopShortcutComponent" Guid="$(var.DesktopShortcutGuid)" Win64="$(var.Win64)">
+        <Shortcut
+          Id="DesktopShortcut"
+          Name="OTC Data Service"
+          Description="OTC Data Service desktop client"
+          Target="[INSTALLDIR]OtcDataService.exe"
+          WorkingDirectory="INSTALLDIR"
+          Icon="AppDesktopIcon"
+          Directory="DesktopFolder" />
+        <RegistryValue
+          Root="HKCU"
+          Key="$(var.RegistryKey)"
+          Name="DesktopShortcut"
+          Type="integer"
+          Value="1"
+          KeyPath="yes" />
+      </Component>
+
+      <Component Id="StartMenuShortcutComponent" Guid="$(var.StartMenuShortcutGuid)" Win64="$(var.Win64)">
+        <Shortcut
+          Id="StartMenuShortcut"
+          Name="OTC Data Service"
+          Description="OTC Data Service desktop client"
+          Target="[INSTALLDIR]OtcDataService.exe"
+          WorkingDirectory="INSTALLDIR"
+          Icon="AppStartMenuIcon"
+          Directory="ProgramMenuFolder" />
+        <RegistryValue
+          Root="HKCU"
+          Key="$(var.RegistryKey)"
+          Name="StartMenuShortcut"
+          Type="integer"
+          Value="1"
+          KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+  </Fragment>
+</Wix>
