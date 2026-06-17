@@ -108,10 +108,8 @@
           </StackPanel>
         </StackPanel>
       </Border>
-
-      <Border Height="80" />
     </StackPanel>
-
+    
     <TextBlock Text="{Binding StatusMessage}"
                Foreground="{StaticResource PrimaryBlueBrush}"
                FontSize="13"

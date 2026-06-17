@@ -53,10 +53,13 @@
                        Classes="sectionTitle" />
           </Border>
 
-          <ScrollViewer Padding="24,20,24,32"
-                        HorizontalScrollBarVisibility="Disabled"
+          <ScrollViewer HorizontalScrollBarVisibility="Disabled"
                         VerticalScrollBarVisibility="Auto">
-            <ContentControl Content="{Binding SelectedSectionContent}" />
+            <StackPanel Margin="24,20,24,32">
+              <ContentControl Content="{Binding SelectedSectionContent}"
+                              HorizontalAlignment="Stretch"
+                              HorizontalContentAlignment="Stretch" />
+            </StackPanel>
           </ScrollViewer>
           </DockPanel>
         </Border>

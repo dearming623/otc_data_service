@@ -2,15 +2,18 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:OtcDataService.ViewModels"
              x:Class="OtcDataService.Views.Settings.DatabaseSettingsView"
-             x:DataType="vm:DatabaseSettingsViewModel">
+             x:DataType="vm:DatabaseSettingsViewModel"
+             HorizontalAlignment="Stretch">
 
-  <StackPanel Spacing="20" MaxWidth="520">
-    <TextBlock Text="Configure ODBC connection to the market database."
+  <Grid MaxWidth="520" RowDefinitions="Auto,Auto,Auto,Auto">
+    <TextBlock Grid.Row="0"
+               Margin="0,0,0,20"
+               Text="Configure ODBC connection to the market database."
                Foreground="{StaticResource TextSecondaryBrush}"
                FontSize="13"
                TextWrapping="Wrap" />
 
-    <StackPanel Spacing="14">
+    <StackPanel Grid.Row="1" Spacing="14" Margin="0,0,0,20">
       <StackPanel Spacing="6">
         <TextBlock Text="DSN" Classes="formLabel" />
         <TextBox Text="{Binding OdbcDsn}" Classes="appInput" Watermark="e.g. market2" />
@@ -27,16 +30,22 @@
       </StackPanel>
     </StackPanel>
 
-    <StackPanel Orientation="Horizontal" Spacing="8">
+    <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="8" Margin="0,0,0,20">
       <Button Content="Test Connection"
               Classes="primary"
               Command="{Binding TestConnectionCommand}" />
     </StackPanel>
 
-    <TextBlock Text="{Binding StatusMessage}"
-               Foreground="{StaticResource PrimaryBlueBrush}"
-               FontSize="13"
-               TextWrapping="Wrap"
-               IsVisible="{Binding StatusMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
-  </StackPanel>
+    <ScrollViewer Grid.Row="3"
+                  MaxHeight="200"
+                  HorizontalScrollBarVisibility="Disabled"
+                  VerticalScrollBarVisibility="Auto"
+                  IsVisible="{Binding StatusMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+      <TextBlock Text="{Binding StatusMessage}"
+                 Foreground="{StaticResource PrimaryBlueBrush}"
+                 FontSize="13"
+                 TextWrapping="Wrap"
+                 HorizontalAlignment="Stretch" />
+    </ScrollViewer>
+  </Grid>
 </UserControl>
