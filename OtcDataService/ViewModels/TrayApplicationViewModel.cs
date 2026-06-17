@@ -12,6 +12,7 @@ public partial class TrayApplicationViewModel : ViewModelBase
 {
     private NativeMenuItem? _enableMenuItem;
     private TrayIcon? _trayIcon;
+    private bool _isExiting;
 
     public MainWindowViewModel MainWindowViewModel { get; } = new();
 
@@ -52,18 +53,12 @@ public partial class TrayApplicationViewModel : ViewModelBase
     [RelayCommand]
     private async Task Exit()
     {
-        if (Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime desktop
-            || desktop.MainWindow is not Window owner)
+        if (Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime desktop)
         {
             return;
         }
 
-        var dialog = new ExitPasswordDialog
-        {
-            DataContext = new ExitPasswordDialogViewModel()
-        };
-
-        var confirmed = await dialog.ShowDialog<bool>(owner);
+        var confirmed = await ExitPasswordDialog.ShowAsync();
         if (!confirmed)
         {
             return;
@@ -74,6 +69,7 @@ public partial class TrayApplicationViewModel : ViewModelBase
 
     private void PerformShutdown()
     {
+        _isExiting = true;
         AppServices.ExportScheduler.Stop();
         if (_trayIcon is not null)
         {
@@ -81,14 +77,13 @@ public partial class TrayApplicationViewModel : ViewModelBase
             _trayIcon.Dispose();
         }
 
-        if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+        if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop
+            && desktop.MainWindow is { IsVisible: true } mainWindow)
         {
-            desktop.Shutdown();
+            mainWindow.Close();
         }
-        else
-        {
-            Environment.Exit(0);
-        }
+
+        Environment.Exit(0);
     }
 
     public void ShowMainWindow()
@@ -118,6 +113,11 @@ public partial class TrayApplicationViewModel : ViewModelBase
         mainWindow.DataContext = MainWindowViewModel;
         mainWindow.Closing += (_, e) =>
         {
+            if (_isExiting)
+            {
+                return;
+            }
+
             e.Cancel = true;
             mainWindow.Hide();
         };
