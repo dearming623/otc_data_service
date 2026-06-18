@@ -36,7 +36,7 @@ public partial class TrayApplicationViewModel : ViewModelBase
     {
         if (IsServiceEnabled)
         {
-            var confirmed = await ExitPasswordDialog.ShowAsync(
+            var confirmed = await EnterPasswordDialog.ShowAsync(
                 "Disable Confirmation",
                 "Enter the password to disable the export service.");
             if (!confirmed)
@@ -74,7 +74,7 @@ public partial class TrayApplicationViewModel : ViewModelBase
             return;
         }
 
-        var confirmed = await ExitPasswordDialog.ShowAsync();
+        var confirmed = await EnterPasswordDialog.ShowAsync();
         if (!confirmed)
         {
             return;

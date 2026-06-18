@@ -3,7 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace OtcDataService.ViewModels;
 
-public partial class ExitPasswordDialogViewModel : ViewModelBase
+public partial class EnterPasswordDialogViewModel : ViewModelBase
 {
     public event Action<bool>? CloseRequested;
 

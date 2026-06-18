@@ -7,17 +7,17 @@ using OtcDataService.ViewModels;
 
 namespace OtcDataService.Views;
 
-public partial class ExitPasswordDialog : Window
+public partial class EnterPasswordDialog : Window
 {
     private const string DefaultTitle = "Exit Confirmation";
     private const string DefaultPrompt = "Enter the exit password.";
 
-    private static ExitPasswordDialog? _activeDialog;
+    private static EnterPasswordDialog? _activeDialog;
     private static TaskCompletionSource<bool>? _activeTcs;
 
-    private ExitPasswordDialogViewModel? _viewModel;
+    private EnterPasswordDialogViewModel? _viewModel;
 
-    public ExitPasswordDialog()
+    public EnterPasswordDialog()
     {
         InitializeComponent();
         Icon = WindowIconFactory.Create();
@@ -31,7 +31,7 @@ public partial class ExitPasswordDialog : Window
 
         if (_activeDialog is { IsVisible: true } && _activeTcs is not null)
         {
-            if (_activeDialog.DataContext is ExitPasswordDialogViewModel activeViewModel
+            if (_activeDialog.DataContext is EnterPasswordDialogViewModel activeViewModel
                 && activeViewModel.Title == resolvedTitle
                 && activeViewModel.Prompt == resolvedPrompt)
             {
@@ -40,7 +40,7 @@ public partial class ExitPasswordDialog : Window
             }
 
             _activeTcs.TrySetResult(false);
-            if (_activeDialog.DataContext is ExitPasswordDialogViewModel viewModel)
+            if (_activeDialog.DataContext is EnterPasswordDialogViewModel viewModel)
             {
                 viewModel.ApplyContext(resolvedTitle, resolvedPrompt);
             }
@@ -50,11 +50,11 @@ public partial class ExitPasswordDialog : Window
             return await _activeTcs.Task;
         }
 
-        var newViewModel = new ExitPasswordDialogViewModel();
+        var newViewModel = new EnterPasswordDialogViewModel();
         newViewModel.ApplyContext(resolvedTitle, resolvedPrompt);
 
         var owner = GetOwnerWindow();
-        var dialog = new ExitPasswordDialog
+        var dialog = new EnterPasswordDialog
         {
             WindowStartupLocation = owner is not null
                 ? WindowStartupLocation.CenterOwner
@@ -84,12 +84,12 @@ public partial class ExitPasswordDialog : Window
         return null;
     }
 
-    private static void StartDialog(ExitPasswordDialog dialog, Window? owner)
+    private static void StartDialog(EnterPasswordDialog dialog, Window? owner)
     {
         _ = ShowDialogAsync(dialog, owner);
     }
 
-    private static async Task ShowDialogAsync(ExitPasswordDialog dialog, Window? owner)
+    private static async Task ShowDialogAsync(EnterPasswordDialog dialog, Window? owner)
     {
         if (owner is null)
         {
@@ -123,8 +123,8 @@ public partial class ExitPasswordDialog : Window
 
     private static void OnDialogClosed(object? sender, EventArgs e)
     {
-        if (sender is ExitPasswordDialog dialog
-            && dialog.DataContext is ExitPasswordDialogViewModel viewModel)
+        if (sender is EnterPasswordDialog dialog
+            && dialog.DataContext is EnterPasswordDialogViewModel viewModel)
         {
             viewModel.CloseRequested -= OnActiveCloseRequested;
             dialog.Closed -= OnDialogClosed;
@@ -169,7 +169,7 @@ public partial class ExitPasswordDialog : Window
             _viewModel.CloseRequested -= OnCloseRequested;
         }
 
-        _viewModel = DataContext as ExitPasswordDialogViewModel;
+        _viewModel = DataContext as EnterPasswordDialogViewModel;
         if (_viewModel is not null)
         {
             _viewModel.CloseRequested += OnCloseRequested;
