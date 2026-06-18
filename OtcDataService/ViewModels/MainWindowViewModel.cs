@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OtcDataService.Models;
+using OtcDataService.Services;
 
 namespace OtcDataService.ViewModels;
 
@@ -15,8 +16,12 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty]
     private object? _currentContent;
 
+    [ObservableProperty]
+    private bool _isServiceEnabled;
+
     public bool IsOnHomePage => CurrentPage == AppPage.Home;
     public bool IsOnSettingsPage => CurrentPage == AppPage.Settings;
+    public bool CanOpenSettings => !IsServiceEnabled;
 
     public string CurrentPageLabel => CurrentPage switch
     {
@@ -32,6 +37,8 @@ public partial class MainWindowViewModel : ViewModelBase
     public MainWindowViewModel()
     {
         Settings.RequestNavigateHome += (_, _) => NavigateHome();
+        AppServices.ExportScheduler.RunningStateChanged += OnRunningStateChanged;
+        IsServiceEnabled = AppServices.ExportScheduler.IsRunning;
         UpdateCurrentContent();
     }
 
@@ -44,6 +51,11 @@ public partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     public void NavigateSettings()
     {
+        if (IsServiceEnabled)
+        {
+            return;
+        }
+
         Settings.Reload();
         CurrentPage = AppPage.Settings;
     }
@@ -54,6 +66,21 @@ public partial class MainWindowViewModel : ViewModelBase
         OnPropertyChanged(nameof(IsOnHomePage));
         OnPropertyChanged(nameof(IsOnSettingsPage));
         OnPropertyChanged(nameof(CurrentPageLabel));
+    }
+
+    partial void OnIsServiceEnabledChanged(bool value)
+    {
+        OnPropertyChanged(nameof(CanOpenSettings));
+    }
+
+    private void OnRunningStateChanged(object? sender, bool isRunning)
+    {
+        IsServiceEnabled = isRunning;
+        if (isRunning && IsOnSettingsPage)
+        {
+            Settings.Reload();
+            NavigateHome();
+        }
     }
 
     private void UpdateCurrentContent()

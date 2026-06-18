@@ -7,7 +7,7 @@ using Avalonia.Platform;
 
 namespace OtcDataService.Views;
 
-internal static class ExitWindowIconFactory
+internal static class WindowIconFactory
 {
     private const string ExitIconGeometry =
         "M9,3 L9,8 L4,8 L4,18 L14,18 L14,8 L11,8 L11,3 Z M11,3 L14,6 L11,6 Z M16,10 L20,13 L16,16 L16,14.5 L12,14.5 L12,11.5 L16,11.5 Z";

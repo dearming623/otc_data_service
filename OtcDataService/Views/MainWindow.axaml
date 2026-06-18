@@ -59,6 +59,7 @@
           <Button Content="Settings"
                   Classes="headerNav"
                   Classes.active="{Binding IsOnSettingsPage}"
+                  IsEnabled="{Binding CanOpenSettings}"
                   Command="{Binding NavigateSettingsCommand}" />
         </StackPanel>
 

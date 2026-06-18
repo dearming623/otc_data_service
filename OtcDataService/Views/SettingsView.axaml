@@ -55,7 +55,7 @@
 
           <ScrollViewer HorizontalScrollBarVisibility="Disabled"
                         VerticalScrollBarVisibility="Auto">
-            <StackPanel Margin="24,20,24,32">
+            <StackPanel Margin="24,20,24,32" IsEnabled="{Binding AreSettingsEditable}">
               <ContentControl Content="{Binding SelectedSectionContent}"
                               HorizontalAlignment="Stretch"
                               HorizontalContentAlignment="Stretch" />
@@ -88,9 +88,11 @@
                   Command="{Binding BackCommand}" />
           <Button Content="Cancel"
                   Classes="secondary"
+                  IsEnabled="{Binding AreSettingsEditable}"
                   Command="{Binding CancelCommand}" />
           <Button Content="Save"
                   Classes="primary"
+                  IsEnabled="{Binding AreSettingsEditable}"
                   Command="{Binding SaveCommand}" />
         </StackPanel>
       </Grid>

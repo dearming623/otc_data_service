@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OtcDataService.Models;
+using OtcDataService.Services;
 
 namespace OtcDataService.ViewModels;
 
@@ -14,6 +15,11 @@ public partial class SettingsViewModel : ViewModelBase
 
     [ObservableProperty]
     private string? _statusMessage;
+
+    [ObservableProperty]
+    private bool _isSettingsLocked;
+
+    public bool AreSettingsEditable => !IsSettingsLocked;
 
     public bool IsDatabaseSelected => SelectedSection == SettingsSection.Database;
     public bool IsExportSelected => SelectedSection == SettingsSection.Export;
@@ -31,6 +37,26 @@ public partial class SettingsViewModel : ViewModelBase
         SettingsSection.Export => "Export Settings",
         _ => "Settings"
     };
+
+    public SettingsViewModel()
+    {
+        AppServices.ExportScheduler.RunningStateChanged += OnRunningStateChanged;
+        IsSettingsLocked = AppServices.ExportScheduler.IsRunning;
+    }
+
+    partial void OnIsSettingsLockedChanged(bool value)
+    {
+        OnPropertyChanged(nameof(AreSettingsEditable));
+    }
+
+    private void OnRunningStateChanged(object? sender, bool isRunning)
+    {
+        IsSettingsLocked = isRunning;
+        if (isRunning)
+        {
+            Reload();
+        }
+    }
 
     partial void OnSelectedSectionChanged(SettingsSection value)
     {
@@ -51,6 +77,11 @@ public partial class SettingsViewModel : ViewModelBase
     [RelayCommand]
     private void Save()
     {
+        if (IsSettingsLocked)
+        {
+            return;
+        }
+
         if (!Database.SaveToConfiguration(out var databaseError))
         {
             StatusMessage = databaseError;
@@ -71,6 +102,11 @@ public partial class SettingsViewModel : ViewModelBase
     [RelayCommand]
     private void Cancel()
     {
+        if (IsSettingsLocked)
+        {
+            return;
+        }
+
         Database.LoadFromConfiguration();
         Export.LoadFromConfiguration();
         StatusMessage = "Changes discarded.";

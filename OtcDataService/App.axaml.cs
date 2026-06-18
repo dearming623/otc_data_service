@@ -74,7 +74,7 @@ public partial class App : Application
             };
 
             TrayIcon.SetIcons(this, new TrayIcons { trayIcon });
-            TrayViewModel.AttachTray(trayIcon, enableMenuItem);
+            TrayViewModel.AttachTray(trayIcon, enableMenuItem, settingMenuItem);
             trayIcon.Clicked += (_, _) => TrayViewModel.ShowMainWindow();
 
             AppServices.Log.Info("OTC Data Service started.");

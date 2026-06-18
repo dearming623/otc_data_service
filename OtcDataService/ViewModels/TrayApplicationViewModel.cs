@@ -11,6 +11,7 @@ namespace OtcDataService.ViewModels;
 public partial class TrayApplicationViewModel : ViewModelBase
 {
     private NativeMenuItem? _enableMenuItem;
+    private NativeMenuItem? _settingMenuItem;
     private TrayIcon? _trayIcon;
     private bool _isExiting;
 
@@ -19,20 +20,30 @@ public partial class TrayApplicationViewModel : ViewModelBase
     [ObservableProperty]
     private bool _isServiceEnabled;
 
-    public void AttachTray(TrayIcon trayIcon, NativeMenuItem enableMenuItem)
+    public void AttachTray(TrayIcon trayIcon, NativeMenuItem enableMenuItem, NativeMenuItem settingMenuItem)
     {
         _trayIcon = trayIcon;
         _enableMenuItem = enableMenuItem;
+        _settingMenuItem = settingMenuItem;
         AppServices.ExportScheduler.RunningStateChanged += OnRunningStateChanged;
         IsServiceEnabled = AppServices.ExportScheduler.IsRunning;
         UpdateEnableMenuHeader();
+        UpdateSettingMenuEnabled();
     }
 
     [RelayCommand]
-    private void ToggleEnable()
+    private async Task ToggleEnable()
     {
         if (IsServiceEnabled)
         {
+            var confirmed = await ExitPasswordDialog.ShowAsync(
+                "Disable Confirmation",
+                "Enter the password to disable the export service.");
+            if (!confirmed)
+            {
+                return;
+            }
+
             AppServices.ExportScheduler.Stop();
             return;
         }
@@ -46,6 +57,11 @@ public partial class TrayApplicationViewModel : ViewModelBase
     [RelayCommand]
     private void OpenSettings()
     {
+        if (IsServiceEnabled)
+        {
+            return;
+        }
+
         ShowMainWindow();
         MainWindowViewModel.NavigateSettings();
     }
@@ -128,6 +144,7 @@ public partial class TrayApplicationViewModel : ViewModelBase
     {
         IsServiceEnabled = isRunning;
         UpdateEnableMenuHeader();
+        UpdateSettingMenuEnabled();
     }
 
     private void UpdateEnableMenuHeader()
@@ -135,6 +152,14 @@ public partial class TrayApplicationViewModel : ViewModelBase
         if (_enableMenuItem is not null)
         {
             _enableMenuItem.Header = IsServiceEnabled ? "Disable" : "Enable";
+        }
+    }
+
+    private void UpdateSettingMenuEnabled()
+    {
+        if (_settingMenuItem is not null)
+        {
+            _settingMenuItem.IsEnabled = !IsServiceEnabled;
         }
     }
 }
