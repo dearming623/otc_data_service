@@ -10,6 +10,10 @@
                FontSize="13"
                TextWrapping="Wrap" />
 
+    <CheckBox Content="Start with Windows"
+              IsChecked="{Binding RunAtStartup}"
+              ToolTip.Tip="Launch minimized to the system tray when you sign in to Windows." />
+
     <StackPanel Spacing="14">
       <StackPanel Spacing="6">
         <TextBlock Text="Sales lookback days" Classes="formLabel" />

@@ -36,6 +36,9 @@ public partial class ExportSettingsViewModel : ViewModelBase
     private string _ftpRemotePath = "/";
 
     [ObservableProperty]
+    private bool _runAtStartup = true;
+
+    [ObservableProperty]
     private string? _statusMessage;
 
     public ExportSettingsViewModel()
@@ -55,6 +58,7 @@ public partial class ExportSettingsViewModel : ViewModelBase
         FtpUserName = config.FtpUserName;
         FtpPassword = config.FtpPassword;
         FtpRemotePath = config.FtpRemotePath;
+        RunAtStartup = config.RunAtStartup;
         StatusMessage = null;
     }
 
@@ -148,7 +152,14 @@ public partial class ExportSettingsViewModel : ViewModelBase
             config.FtpUserName = FtpUserName.Trim();
             config.FtpPassword = FtpPassword;
             config.FtpRemotePath = string.IsNullOrWhiteSpace(FtpRemotePath) ? "/" : FtpRemotePath.Trim();
+            config.RunAtStartup = RunAtStartup;
         });
+
+        if (!AppServices.Startup.Sync(RunAtStartup, out errorMessage))
+        {
+            StatusMessage = errorMessage;
+            return false;
+        }
 
         StatusMessage = "Export settings saved.";
         errorMessage = null;

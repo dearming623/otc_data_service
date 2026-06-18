@@ -21,4 +21,5 @@ public static class AppServices
         FtpUpload,
         Log);
     public static OtcExportScheduler ExportScheduler { get; } = new(Configuration, Odbc, ExportData, Log);
+    public static StartupService Startup { get; } = new();
 }

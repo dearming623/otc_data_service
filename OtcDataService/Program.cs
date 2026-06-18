@@ -8,6 +8,8 @@ internal sealed class Program
     [STAThread]
     public static void Main(string[] args)
     {
+        StartupLaunchMode.Configure(args);
+
         if (!SingleInstanceGuard.TryAcquire())
         {
             return;

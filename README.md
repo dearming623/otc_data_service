@@ -15,6 +15,7 @@ Windows 系统托盘应用，通过 ODBC 从 market POS 数据库定期导出商
 ## 功能特性 (Features)
 
 - **系统托盘运行** — 关闭主窗口后应用隐藏至托盘，继续在后台运行
+- **开机自启动** — 默认在用户登录 Windows 后自动启动并驻留托盘（可在 Export 设置中关闭）
 - **Enable / Disable 调度** — 通过托盘菜单启用或停用定时导出
 - **设置界面** — Database（ODBC 连接）与 Export（导出参数、FTP）分栏配置
 - **Activity Log** — 应用内实时日志，最多保留 500 条记录
@@ -99,6 +100,7 @@ ProductCode,ProductCodeType,ProductName,CategoryCode,CategoryDescription,Subcate
 | `ftpRemotePath` | `"/"` | FTP 远程目录 |
 | `lastExportUtc` | `null` | 上次成功导出的 UTC 时间（自动维护） |
 | `isEnabled` | `false` | 调度器是否已启用（自动维护） |
+| `runAtStartup` | `true` | 是否在用户登录 Windows 后自动启动（驻留托盘，不弹出主窗口） |
 
 > **安全提示：** 首次运行会使用内置默认数据库凭据。生产环境请通过 Settings UI 修改为实际凭据，且勿将 `config.json` 提交到版本库。
 
@@ -129,6 +131,9 @@ ProductCode,ProductCodeType,ProductName,CategoryCode,CategoryDescription,Subcate
 4. **Settings** → **Export** → 设置 lookback 天数、导出间隔、输出目录及 FTP（可选）
 5. 托盘菜单 → **Enable** 启用调度
 6. 在 Activity Log 与输出目录中查看 `Catalog_*.csv`
+7. 注销并重新登录（或重启）后，确认托盘图标出现且导出调度自动恢复
+
+> 安装 MSI 后，默认会在当前用户登录时自动启动（仅托盘，不弹主窗口）。可在 **Settings → Export** 中取消勾选 **Start with Windows** 关闭。
 
 ### 托盘菜单
 
@@ -217,6 +222,7 @@ MSI 安装包由 WiX 项目 [OtcDataService.Setup](OtcDataService.Setup/) 生成
 | 安装路径（x86） | `C:\Program Files (x86)\MoleQ\OtcDataService\` |
 | 运行时依赖 | 无（自包含发布，无需单独安装 .NET Runtime） |
 | 快捷方式 | 桌面 + 开始菜单 |
+| 开机自启动 | 默认开启（HKCU Run 注册表，登录后以 `--minimized` 驻留托盘；卸载时自动清除） |
 | 用户配置 | `%LocalAppData%\OtcDataService\`（config.json、Exports 目录） |
 
 ---

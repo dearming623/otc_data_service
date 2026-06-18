@@ -80,8 +80,29 @@ public partial class App : Application
             AppServices.Log.Info("OTC Data Service started.");
             AppServices.Log.Info($"Process architecture: {(Environment.Is64BitProcess ? "64-bit" : "32-bit")} (ODBC requires matching DSN bitness).");
             AppServices.Log.Info("Single-instance guard active (local mutex and LAN TCP lock).");
-            TrayViewModel.ShowMainWindow();
+
+            if (AppServices.Startup.Sync(AppServices.Configuration.Current.RunAtStartup, out var startupError))
+            {
+                if (AppServices.Configuration.Current.RunAtStartup)
+                {
+                    AppServices.Log.Info("Run at startup enabled.");
+                }
+            }
+            else
+            {
+                AppServices.Log.Error(startupError ?? "Failed to sync run-at-startup setting.");
+            }
+
             TrayViewModel.InitializeOnStartup();
+
+            if (StartupLaunchMode.IsMinimized)
+            {
+                AppServices.Log.Info("Started minimized to tray (auto-start).");
+            }
+            else
+            {
+                TrayViewModel.ShowMainWindow();
+            }
         }
 
         base.OnFrameworkInitializationCompleted();
