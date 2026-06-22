@@ -53,7 +53,7 @@
                   Classes="secondary"
                   Click="OnBrowseClick" />
         </Grid>
-        <TextBlock Text="Local folder where CSV files are saved before optional FTP upload."
+        <TextBlock Text="Local folder where CSV files are saved before optional remote upload."
                    Foreground="{StaticResource TextSecondaryBrush}"
                    FontSize="12" />
       </StackPanel>
@@ -64,19 +64,37 @@
               Padding="14"
               Margin="0,4,0,0">
         <StackPanel Spacing="14">
-          <CheckBox Content="Upload CSV to FTP after export"
+          <CheckBox Content="Upload CSV after export"
                     IsChecked="{Binding FtpUploadEnabled}" />
 
           <StackPanel Spacing="14" IsEnabled="{Binding FtpUploadEnabled}">
             <StackPanel Spacing="6">
-              <TextBlock Text="FTP host" Classes="formLabel" />
+              <TextBlock Text="Protocol" Classes="formLabel" />
+              <ComboBox ItemsSource="{Binding ProtocolOptions}"
+                        SelectedItem="{Binding SelectedProtocolOption}"
+                        DisplayMemberBinding="{Binding Display}"
+                        Classes="appInput"
+                        HorizontalAlignment="Stretch" />
+            </StackPanel>
+
+            <StackPanel Spacing="6">
+              <TextBlock Text="Logon Type" Classes="formLabel" />
+              <ComboBox ItemsSource="{Binding LogonTypeOptions}"
+                        SelectedItem="{Binding SelectedLogonTypeOption}"
+                        DisplayMemberBinding="{Binding Display}"
+                        Classes="appInput"
+                        HorizontalAlignment="Stretch" />
+            </StackPanel>
+
+            <StackPanel Spacing="6">
+              <TextBlock Text="Host" Classes="formLabel" />
               <TextBox Text="{Binding FtpHost}"
                        Classes="appInput"
                        Watermark="e.g. ftp.example.com" />
             </StackPanel>
 
             <StackPanel Spacing="6">
-              <TextBlock Text="FTP port" Classes="formLabel" />
+              <TextBlock Text="Port" Classes="formLabel" />
               <NumericUpDown Minimum="1"
                              Maximum="65535"
                              Value="{Binding FtpPort}"
@@ -85,27 +103,36 @@
                              HorizontalAlignment="Left" />
             </StackPanel>
 
-            <StackPanel Spacing="6">
-              <TextBlock Text="FTP username" Classes="formLabel" />
+            <StackPanel Spacing="6" IsVisible="{Binding IsFtpProtocol}">
+              <TextBlock Text="Encryption" Classes="formLabel" />
+              <ComboBox ItemsSource="{Binding EncryptionOptions}"
+                        SelectedItem="{Binding SelectedEncryptionOption}"
+                        DisplayMemberBinding="{Binding Display}"
+                        Classes="appInput"
+                        HorizontalAlignment="Stretch" />
+            </StackPanel>
+
+            <StackPanel Spacing="6" IsVisible="{Binding IsNormalLogon}">
+              <TextBlock Text="Username" Classes="formLabel" />
               <TextBox Text="{Binding FtpUserName}" Classes="appInput" />
             </StackPanel>
 
-            <StackPanel Spacing="6">
-              <TextBlock Text="FTP password" Classes="formLabel" />
+            <StackPanel Spacing="6" IsVisible="{Binding IsNormalLogon}">
+              <TextBlock Text="Password" Classes="formLabel" />
               <TextBox Text="{Binding FtpPassword}" Classes="appInput" PasswordChar="●" />
             </StackPanel>
 
             <StackPanel Spacing="6">
-              <TextBlock Text="FTP remote path" Classes="formLabel" />
+              <TextBlock Text="Remote path" Classes="formLabel" />
               <TextBox Text="{Binding FtpRemotePath}"
                        Classes="appInput"
                        Watermark="e.g. /exports" />
-              <TextBlock Text="Remote directory on the FTP server. The directory is created if it does not exist."
+              <TextBlock Text="Remote directory on the server. The directory is created if it does not exist."
                          Foreground="{StaticResource TextSecondaryBrush}"
                          FontSize="12" />
             </StackPanel>
 
-            <Button Content="Test FTP Connection"
+            <Button Content="Test Connection"
                     Classes="primary"
                     HorizontalAlignment="Left"
                     Command="{Binding TestFtpConnectionCommand}" />

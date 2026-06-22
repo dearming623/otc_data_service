@@ -19,6 +19,28 @@ public enum LogLevel
     Error
 }
 
+public enum UploadProtocol
+{
+    Ftp,
+    Sftp
+}
+
+public enum UploadLogonType
+{
+    Anonymous,
+    Normal
+}
+
+public enum FtpEncryptionMode
+{
+    None,
+    ExplicitIfAvailable,
+    ExplicitRequired,
+    ImplicitRequired
+}
+
+public sealed record UploadSelectOption<T>(T Value, string Display);
+
 public sealed class LogEntry
 {
     public DateTime Timestamp { get; init; }

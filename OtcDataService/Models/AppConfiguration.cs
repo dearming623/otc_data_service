@@ -12,11 +12,14 @@ public sealed class AppConfiguration
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "OtcDataService", "Exports");
 
     public bool FtpUploadEnabled { get; set; }
+    public UploadProtocol UploadProtocol { get; set; } = UploadProtocol.Ftp;
+    public UploadLogonType UploadLogonType { get; set; } = UploadLogonType.Normal;
     public string FtpHost { get; set; } = string.Empty;
     public int FtpPort { get; set; } = 21;
     public string FtpUserName { get; set; } = string.Empty;
     public string FtpPassword { get; set; } = string.Empty;
     public string FtpRemotePath { get; set; } = "/";
+    public FtpEncryptionMode FtpEncryptionMode { get; set; } = FtpEncryptionMode.ExplicitIfAvailable;
 
     public DateTime? LastExportUtc { get; set; }
     public bool IsEnabled { get; set; }

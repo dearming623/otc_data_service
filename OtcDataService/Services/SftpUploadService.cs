@@ -1,11 +1,10 @@
-using FluentFTP;
+using System.IO;
 using OtcDataService.Models;
-using AppFtpEncryptionMode = OtcDataService.Models.FtpEncryptionMode;
-using FluentFtpEncryptionMode = FluentFTP.FtpEncryptionMode;
+using Renci.SshNet;
 
 namespace OtcDataService.Services;
 
-public sealed class FtpUploadService
+public sealed class SftpUploadService
 {
     public static bool ValidateSettings(AppConfiguration config, out string? errorMessage)
     {
@@ -50,13 +49,13 @@ public sealed class FtpUploadService
             return true;
         }
 
-        await using var client = CreateClient(config);
-        await client.Connect(cancellationToken);
+        using var client = CreateClient(config);
+        await ConnectAsync(client, cancellationToken);
 
         var remotePath = NormalizeRemoteDirectory(config.FtpRemotePath);
         if (!string.IsNullOrEmpty(remotePath))
         {
-            await client.CreateDirectory(remotePath, true, cancellationToken);
+            EnsureRemoteDirectory(client, remotePath);
         }
 
         return true;
@@ -80,64 +79,64 @@ public sealed class FtpUploadService
         var fileName = Path.GetFileName(localFilePath);
         var remoteDirectory = NormalizeRemoteDirectory(config.FtpRemotePath);
         var remotePath = string.IsNullOrEmpty(remoteDirectory)
-            ? fileName
-            : $"{remoteDirectory}/{fileName}";
+            ? $"/{fileName}"
+            : $"/{remoteDirectory}/{fileName}";
 
-        await using var client = CreateClient(config);
-        await client.Connect(cancellationToken);
+        using var client = CreateClient(config);
+        await ConnectAsync(client, cancellationToken);
 
         if (!string.IsNullOrEmpty(remoteDirectory))
         {
-            await client.CreateDirectory(remoteDirectory, true, cancellationToken);
+            EnsureRemoteDirectory(client, remoteDirectory);
         }
 
-        var status = await client.UploadFile(
-            localFilePath,
-            remotePath,
-            FtpRemoteExists.Overwrite,
-            true,
-            token: cancellationToken);
-
-        if (status != FtpStatus.Success)
-        {
-            throw new InvalidOperationException($"FTP upload failed with status {status}.");
-        }
+        cancellationToken.ThrowIfCancellationRequested();
+        using var fileStream = File.OpenRead(localFilePath);
+        client.UploadFile(fileStream, remotePath, true);
     }
 
-    private static AsyncFtpClient CreateClient(AppConfiguration config)
+    private static SftpClient CreateClient(AppConfiguration config)
     {
         var (userName, password) = ResolveCredentials(config);
-        var client = new AsyncFtpClient(config.FtpHost.Trim(), userName, password, config.FtpPort);
+        var connectionInfo = new ConnectionInfo(
+            config.FtpHost.Trim(),
+            config.FtpPort,
+            userName,
+            new PasswordAuthenticationMethod(userName, password));
 
-        var encryptionMode = MapEncryptionMode(config.FtpEncryptionMode);
-        client.Config.EncryptionMode = encryptionMode;
-
-        if (encryptionMode != FluentFtpEncryptionMode.None)
-        {
-            client.Config.DataConnectionEncryption = true;
-        }
-
-        return client;
+        return new SftpClient(connectionInfo);
     }
 
-    private static FluentFtpEncryptionMode MapEncryptionMode(AppFtpEncryptionMode mode) =>
-        mode switch
-        {
-            AppFtpEncryptionMode.None => FluentFtpEncryptionMode.None,
-            AppFtpEncryptionMode.ExplicitIfAvailable => FluentFtpEncryptionMode.Auto,
-            AppFtpEncryptionMode.ExplicitRequired => FluentFtpEncryptionMode.Explicit,
-            AppFtpEncryptionMode.ImplicitRequired => FluentFtpEncryptionMode.Implicit,
-            _ => FluentFtpEncryptionMode.Auto
-        };
+    private static async Task ConnectAsync(SftpClient client, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        await Task.Run(() => client.Connect(), cancellationToken);
+    }
 
     private static (string UserName, string Password) ResolveCredentials(AppConfiguration config)
     {
         if (config.UploadLogonType == UploadLogonType.Anonymous)
         {
-            return ("anonymous", "anonymous@");
+            return ("anonymous", string.Empty);
         }
 
         return (config.FtpUserName.Trim(), config.FtpPassword);
+    }
+
+    private static void EnsureRemoteDirectory(SftpClient client, string remoteDirectory)
+    {
+        var segments = remoteDirectory.Split('/', StringSplitOptions.RemoveEmptyEntries);
+        var current = string.Empty;
+
+        foreach (var segment in segments)
+        {
+            current = string.IsNullOrEmpty(current) ? segment : $"{current}/{segment}";
+            var remotePath = $"/{current}";
+            if (!client.Exists(remotePath))
+            {
+                client.CreateDirectory(remotePath);
+            }
+        }
     }
 
     private static string NormalizeRemoteDirectory(string? remotePath)
@@ -147,7 +146,6 @@ public sealed class FtpUploadService
             return string.Empty;
         }
 
-        var normalized = remotePath.Trim().Replace('\\', '/').Trim('/');
-        return normalized;
+        return remotePath.Trim().Replace('\\', '/').Trim('/');
     }
 }

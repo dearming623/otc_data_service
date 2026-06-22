@@ -165,6 +165,19 @@
     <Setter Property="CornerRadius" Value="{StaticResource ControlRadiusLeading}" />
   </Style>
 
+  <Style Selector="ComboBox.appInput">
+    <Setter Property="Background" Value="{StaticResource SurfaceWhiteBrush}" />
+    <Setter Property="BorderBrush" Value="{StaticResource BorderBlueBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{StaticResource ControlRadius}" />
+    <Setter Property="Padding" Value="10,8" />
+    <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+  </Style>
+  <Style Selector="ComboBox.appInput:focus">
+    <Setter Property="BorderBrush" Value="{StaticResource PrimaryBlueBrush}" />
+    <Setter Property="BorderThickness" Value="1.5" />
+  </Style>
+
   <!-- Card container -->
   <Style Selector="Border.card">
     <Setter Property="Background" Value="{StaticResource SurfaceWhiteBrush}" />

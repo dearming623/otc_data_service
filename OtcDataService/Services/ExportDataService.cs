@@ -12,7 +12,7 @@ public sealed class ExportDataService
     private readonly IProdtableRepository _prodtableRepository;
     private readonly IMktDepRepository _mktDepRepository;
     private readonly IItemCategoryRepository _itemCategoryRepository;
-    private readonly FtpUploadService _ftpUploadService;
+    private readonly RemoteUploadService _remoteUploadService;
     private readonly LogService _logService;
 
     public ExportDataService(
@@ -21,7 +21,7 @@ public sealed class ExportDataService
         IProdtableRepository prodtableRepository,
         IMktDepRepository mktDepRepository,
         IItemCategoryRepository itemCategoryRepository,
-        FtpUploadService ftpUploadService,
+        RemoteUploadService remoteUploadService,
         LogService logService)
     {
         _configurationService = configurationService;
@@ -29,7 +29,7 @@ public sealed class ExportDataService
         _prodtableRepository = prodtableRepository;
         _mktDepRepository = mktDepRepository;
         _itemCategoryRepository = itemCategoryRepository;
-        _ftpUploadService = ftpUploadService;
+        _remoteUploadService = remoteUploadService;
         _logService = logService;
     }
 
@@ -95,9 +95,10 @@ public sealed class ExportDataService
 
             if (config.FtpUploadEnabled)
             {
-                _logService.Info("Uploading catalog export to FTP...");
-                await _ftpUploadService.UploadFileAsync(config, filePath, cancellationToken);
-                _logService.Info($"Catalog export uploaded to FTP: {fileName}.");
+                var protocolLabel = RemoteUploadService.GetProtocolLabel(config.UploadProtocol);
+                _logService.Info($"Uploading catalog export via {protocolLabel}...");
+                await _remoteUploadService.UploadFileAsync(config, filePath, cancellationToken);
+                _logService.Info($"Catalog export uploaded via {protocolLabel}: {fileName}.");
             }
 
             _configurationService.Update(c => c.LastExportUtc = DateTime.UtcNow);

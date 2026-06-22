@@ -38,6 +38,19 @@ public sealed class ConfigurationService
             var json = File.ReadAllText(_configPath);
             Current = JsonSerializer.Deserialize<AppConfiguration>(json, JsonOptions) ?? new AppConfiguration();
 
+            if (!json.Contains("ftpEncryptionMode", StringComparison.OrdinalIgnoreCase) &&
+                json.Contains("ftpUseFtps", StringComparison.OrdinalIgnoreCase))
+            {
+                using var doc = JsonDocument.Parse(json);
+                if (doc.RootElement.TryGetProperty("ftpUseFtps", out var ftpUseFtps))
+                {
+                    Current.FtpEncryptionMode = ftpUseFtps.GetBoolean()
+                        ? FtpEncryptionMode.ExplicitRequired
+                        : FtpEncryptionMode.ExplicitIfAvailable;
+                    Save();
+                }
+            }
+
             if (!json.Contains("hasCompletedSetup", StringComparison.OrdinalIgnoreCase))
             {
                 Current.HasCompletedSetup = true;

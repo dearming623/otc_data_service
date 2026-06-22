@@ -81,11 +81,14 @@ public partial class DatabaseSettingsViewModel : ViewModelBase
             DocumentIntervalDays = config.DocumentIntervalDays,
             OutputFolder = config.OutputFolder,
             FtpUploadEnabled = config.FtpUploadEnabled,
+            UploadProtocol = config.UploadProtocol,
+            UploadLogonType = config.UploadLogonType,
             FtpHost = config.FtpHost,
             FtpPort = config.FtpPort,
             FtpUserName = config.FtpUserName,
             FtpPassword = config.FtpPassword,
             FtpRemotePath = config.FtpRemotePath,
+            FtpEncryptionMode = config.FtpEncryptionMode,
             LastExportUtc = config.LastExportUtc,
             IsEnabled = config.IsEnabled
         };
