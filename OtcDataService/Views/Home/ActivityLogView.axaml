@@ -1,0 +1,41 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:OtcDataService.ViewModels"
+             x:Class="OtcDataService.Views.Home.ActivityLogView"
+             x:DataType="vm:ActivityLogViewModel">
+
+  <DockPanel>
+    <Grid DockPanel.Dock="Top" ColumnDefinitions="*,Auto" Margin="0,0,0,16">
+      <StackPanel Spacing="4">
+        <TextBlock Text="Live output from export and connection events"
+                   Foreground="{StaticResource TextSecondaryBrush}"
+                   FontSize="13" />
+      </StackPanel>
+      <Button Grid.Column="1"
+              Content="Clear Log"
+              Classes="secondary"
+              Command="{Binding ClearLogsCommand}"
+              VerticalAlignment="Center" />
+    </Grid>
+
+    <Border Background="{StaticResource PrimaryBlueLightBrush}"
+            CornerRadius="6"
+            Padding="1">
+      <ListBox ItemsSource="{Binding Logs}"
+               Classes="logList"
+               MinHeight="360"
+               ScrollViewer.HorizontalScrollBarVisibility="Auto"
+               ScrollViewer.VerticalScrollBarVisibility="Auto">
+        <ListBox.ItemTemplate>
+          <DataTemplate>
+            <TextBlock Text="{Binding DisplayText}"
+                       FontFamily="Consolas,Courier New,monospace"
+                       FontSize="12.5"
+                       Foreground="{StaticResource TextPrimaryBrush}"
+                       TextWrapping="NoWrap" />
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+    </Border>
+  </DockPanel>
+</UserControl>

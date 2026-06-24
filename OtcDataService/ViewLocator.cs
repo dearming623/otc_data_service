@@ -38,6 +38,16 @@ public class ViewLocator : IDataTemplate
             type = Type.GetType("OtcDataService.Views.Settings.DatabaseSettingsView");
         }
 
+        if (type is null && name.EndsWith("ActivityLogView", StringComparison.Ordinal))
+        {
+            type = Type.GetType("OtcDataService.Views.Home.ActivityLogView");
+        }
+
+        if (type is null && name.EndsWith("ManualView", StringComparison.Ordinal))
+        {
+            type = Type.GetType("OtcDataService.Views.Home.ManualView");
+        }
+
         if (type != null)
         {
             return (Control)Activator.CreateInstance(type)!;

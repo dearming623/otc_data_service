@@ -33,14 +33,18 @@ public sealed class ExportDataService
         _logService = logService;
     }
 
-    public async Task<bool> ExportAsync(CancellationToken cancellationToken = default)
+    public async Task<bool> ExportAsync(
+        CancellationToken cancellationToken = default,
+        DateOnly? startDate = null,
+        DateOnly? endDate = null,
+        bool updateLastExportUtc = true)
     {
         var config = _configurationService.Current;
-        var startDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-config.SalesLookbackDays));
-        var endDate = DateOnly.FromDateTime(DateTime.Today.AddDays(1));
+        var effectiveStart = startDate ?? DateOnly.FromDateTime(DateTime.Today.AddDays(-config.SalesLookbackDays));
+        var effectiveEnd = endDate ?? DateOnly.FromDateTime(DateTime.Today.AddDays(1));
 
         _logService.Info(
-            $"Starting catalog export for CleanupTrn sales from {startDate:yyyy-MM-dd} to {DateTime.Today:yyyy-MM-dd}.");
+            $"Starting catalog export for CleanupTrn sales from {effectiveStart:yyyy-MM-dd} to {effectiveEnd.AddDays(-1):yyyy-MM-dd}.");
 
         try
         {
@@ -53,8 +57,8 @@ public sealed class ExportDataService
             Directory.CreateDirectory(config.OutputFolder);
 
             var pCodes = await _cleanupTrnRepository.ListDistinctCuItemsByDateRangeAsync(
-                startDate,
-                endDate,
+                effectiveStart,
+                effectiveEnd,
                 cancellationToken);
 
             _logService.Info($"Found {pCodes.Count} distinct product code(s) in CleanupTrn.");
@@ -107,7 +111,10 @@ public sealed class ExportDataService
                 _logService.Info($"Catalog export uploaded via {protocolLabel}: {fileName}.");
             }
 
-            _configurationService.Update(c => c.LastExportUtc = DateTime.UtcNow);
+            if (updateLastExportUtc)
+            {
+                _configurationService.Update(c => c.LastExportUtc = DateTime.UtcNow);
+            }
             _logService.Info($"Catalog export completed: {rowsByProductCode.Count} row(s) written to {filePath}.");
             return true;
         }

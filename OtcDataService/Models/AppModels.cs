@@ -12,6 +12,12 @@ public enum SettingsSection
     Export
 }
 
+public enum HomeSection
+{
+    ActivityLog,
+    Manual
+}
+
 public enum LogLevel
 {
     Info,
