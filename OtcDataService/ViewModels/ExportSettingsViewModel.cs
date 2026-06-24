@@ -13,10 +13,16 @@ public partial class ExportSettingsViewModel : ViewModelBase
     private const int DefaultImplicitFtpPort = 990;
 
     [ObservableProperty]
+    private string _entityId = string.Empty;
+
+    [ObservableProperty]
     private int _salesLookbackDays;
 
     [ObservableProperty]
     private int _documentIntervalDays;
+
+    [ObservableProperty]
+    private TimeSpan? _exportTimeOfDay = new(22, 0, 0);
 
     [ObservableProperty]
     private string _outputFolder = string.Empty;
@@ -98,8 +104,10 @@ public partial class ExportSettingsViewModel : ViewModelBase
     public void LoadFromConfiguration()
     {
         var config = AppServices.Configuration.Current;
+        EntityId = config.EntityId;
         SalesLookbackDays = config.SalesLookbackDays;
         DocumentIntervalDays = config.DocumentIntervalDays;
+        ExportTimeOfDay = config.ExportTimeLocal.ToTimeSpan();
         OutputFolder = config.OutputFolder;
         FtpUploadEnabled = config.FtpUploadEnabled;
         UploadProtocol = config.UploadProtocol;
@@ -237,6 +245,12 @@ public partial class ExportSettingsViewModel : ViewModelBase
 
     public bool SaveToConfiguration(out string? errorMessage)
     {
+        if (!AppConfiguration.TryValidateEntityId(EntityId, out errorMessage))
+        {
+            StatusMessage = errorMessage;
+            return false;
+        }
+
         if (SalesLookbackDays <= 0)
         {
             errorMessage = "Sales lookback days must be greater than zero.";
@@ -267,8 +281,10 @@ public partial class ExportSettingsViewModel : ViewModelBase
 
         AppServices.Configuration.Update(config =>
         {
+            config.EntityId = EntityId.Trim();
             config.SalesLookbackDays = SalesLookbackDays;
             config.DocumentIntervalDays = DocumentIntervalDays;
+            config.ExportTimeLocal = TimeOnly.FromTimeSpan(ExportTimeOfDay ?? TimeSpan.Zero);
             config.OutputFolder = OutputFolder.Trim();
             config.FtpUploadEnabled = FtpUploadEnabled;
             config.UploadProtocol = UploadProtocol;
@@ -297,8 +313,10 @@ public partial class ExportSettingsViewModel : ViewModelBase
     private AppConfiguration BuildDraftConfiguration() =>
         new()
         {
+            EntityId = EntityId.Trim(),
             SalesLookbackDays = SalesLookbackDays,
             DocumentIntervalDays = DocumentIntervalDays,
+            ExportTimeLocal = TimeOnly.FromTimeSpan(ExportTimeOfDay ?? TimeSpan.Zero),
             OutputFolder = OutputFolder.Trim(),
             FtpUploadEnabled = FtpUploadEnabled,
             UploadProtocol = UploadProtocol,

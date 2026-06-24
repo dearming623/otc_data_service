@@ -1,3 +1,5 @@
+using OtcDataService.Models;
+
 namespace OtcDataService.Services;
 
 public sealed class OtcExportScheduler : IDisposable
@@ -73,6 +75,11 @@ public sealed class OtcExportScheduler : IDisposable
                 return false;
             }
 
+            if (!AppConfiguration.TryValidateEntityId(config.EntityId, out errorMessage))
+            {
+                return false;
+            }
+
             if (!RemoteUploadService.ValidateSettings(config, out errorMessage))
             {
                 return false;
@@ -84,7 +91,7 @@ public sealed class OtcExportScheduler : IDisposable
             }
 
             _cts = new CancellationTokenSource();
-            _timer = new PeriodicTimer(TimeSpan.FromHours(1));
+            _timer = new PeriodicTimer(TimeSpan.FromMinutes(1));
             _loopTask = Task.Run(() => RunLoopAsync(_cts.Token));
             _isRunning = true;
 
@@ -151,13 +158,7 @@ public sealed class OtcExportScheduler : IDisposable
     private bool IsDueForExport()
     {
         var config = _configurationService.Current;
-        if (config.LastExportUtc is null)
-        {
-            return true;
-        }
-
-        var elapsed = DateTime.UtcNow - config.LastExportUtc.Value;
-        return elapsed.TotalDays >= config.DocumentIntervalDays;
+        return config.IsExportDue(DateTime.Now, config.LastExportUtc);
     }
 
     public void Dispose()

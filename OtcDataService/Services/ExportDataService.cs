@@ -44,6 +44,12 @@ public sealed class ExportDataService
 
         try
         {
+            if (!AppConfiguration.TryValidateEntityId(config.EntityId, out var entityIdError))
+            {
+                _logService.Error($"Catalog export failed: {entityIdError}");
+                return false;
+            }
+
             Directory.CreateDirectory(config.OutputFolder);
 
             var pCodes = await _cleanupTrnRepository.ListDistinctCuItemsByDateRangeAsync(
@@ -84,7 +90,7 @@ public sealed class ExportDataService
                 }
             }
 
-            var fileName = $"Catalog_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
+            var fileName = config.BuildCatalogExportFileName(DateTime.Now);
             var filePath = Path.Combine(config.OutputFolder, fileName);
 
             await CsvWriter.WriteAsync(

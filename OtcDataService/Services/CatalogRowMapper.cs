@@ -12,7 +12,7 @@ public static class CatalogRowMapper
         new()
         {
             ProductCode = FormatProductCode(product),
-            ProductCodeType = DefaultProductCodeType,
+            ProductCodeType = IsPLUItem(product) ? "PLU" : DefaultProductCodeType,
             ProductName = ResolveProductName(product),
             CategoryCode = dep?.DepNo.ToString() ?? string.Empty,
             CategoryDescription = dep?.DepName ?? string.Empty,//dep?.DepDisplay ?? dep?.DepName ?? string.Empty,
@@ -22,18 +22,18 @@ public static class CatalogRowMapper
 
     public static string FormatProductCode(Prodtable product)
     {
-        // P = PLU fixed,  W = PLU Weight
-        var amtType = product.AmtType?.Trim();
-        if (amtType is not null &&
-            (amtType.Equals("P", StringComparison.OrdinalIgnoreCase) ||
-             amtType.Equals("W", StringComparison.OrdinalIgnoreCase)))
-        {
-            return product.ItemNo.Trim();
-        }
+        //Kevin要求都做法
+        //// P = PLU fixed,  W = PLU Weight
+        //if (IsPLUItem(product))
+        //{
+        //    return product.ItemNo.Trim();
+        //}  
+        //string barcode = product.Barcode ?? string.Empty;
+        //var trimmed = barcode.Trim();
+        //return trimmed.Length == 13 ? trimmed[..12] : trimmed;
 
-        string barcode = product.Barcode ?? string.Empty;
-        var trimmed = barcode.Trim();
-        return trimmed.Length == 13 ? trimmed[..12] : trimmed;
+        // Cody要求的做法,只需要item no
+        return product.ItemNo.Trim();
     }
 
     public static string FormatSubcategoryCode(int? catNo) =>
@@ -41,4 +41,9 @@ public static class CatalogRowMapper
 
     private static string ResolveProductName(Prodtable product) =>
         string.IsNullOrWhiteSpace(product.Proname) ? product.Cpronam ?? string.Empty : product.Proname;
+
+    private static bool IsPLUItem(Prodtable product) =>
+        product.AmtType?.Trim() is string amtType &&
+        (amtType.Equals("P", StringComparison.OrdinalIgnoreCase) ||
+         amtType.Equals("W", StringComparison.OrdinalIgnoreCase));
 }

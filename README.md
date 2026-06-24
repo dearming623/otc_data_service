@@ -45,13 +45,14 @@ flowchart LR
    - `DBA.prodtable` — 商品主数据
    - `DBA.t_mkt_dep` — 部门 / 大类
    - `DBA.t_item_category` — 子类
-3. 写入 UTF-8 CSV，文件名：`Catalog_{yyyyMMdd_HHmmss}.csv`
+3. 写入 UTF-8 CSV，文件名：`{entityId}_catalog_{MMddyy}_{HHmmss}.csv`（24 小时制本地时间）
 4. 若启用 FTP，将文件上传至配置的远程目录
 
 ### 调度规则
 
-- 调度器每小时检查一次是否到期
-- 当 `LastExportUtc` 为空，或距上次成功导出已满 `DocumentIntervalDays`（默认 1 天）时触发导出
+- 调度器每分钟检查一次是否到期
+- 当距上次成功导出已满 `DocumentIntervalDays`（默认 1 天），且当前本地时间已达到 `ExportTimeLocal`（默认 22:00，24 小时制）时触发导出
+- 首次导出同样等到设定时间；若服务在设定时间之后才启动且当天本应导出，则立即补跑
 - 启用调度时会校验 ODBC、导出参数、输出目录及 FTP 设置，并测试数据库连接
 
 ---
@@ -90,8 +91,10 @@ ProductCode,ProductCodeType,ProductName,CategoryCode,CategoryDescription,Subcate
 | `odbcDsn` | `market2_64` | ODBC 数据源名称 |
 | `odbcUserId` | `adm0` | 数据库用户名 |
 | `odbcPassword` | *(内置默认值)* | 数据库密码 |
+| `entityId` | `""` | 实体标识，用于 CSV 文件名前缀（必填，最多 50 字符，不能含空格） |
 | `salesLookbackDays` | `7` | 销售回溯天数，用于筛选有销售记录的商品 |
 | `documentIntervalDays` | `1` | 两次导出之间的最短间隔（天） |
+| `exportTimeLocal` | `22:00:00` | 每日导出的本地时间（24 小时制） |
 | `outputFolder` | `%LocalAppData%\OtcDataService\Exports` | CSV 本地输出目录 |
 | `ftpUploadEnabled` | `false` | 是否启用 FTP 上传 |
 | `ftpHost` | `""` | FTP 服务器地址 |
@@ -128,9 +131,9 @@ ProductCode,ProductCodeType,ProductName,CategoryCode,CategoryDescription,Subcate
 1. 安装与 ODBC DSN bitness 匹配的 MSI（`OtcDataService-setup-x86.msi` 或 `OtcDataService-setup-x64.msi`）
 2. 在对应 bitness 的 ODBC 管理器中配置数据源
 3. 启动应用 → **Settings** → **Database** → 测试连接
-4. **Settings** → **Export** → 设置 lookback 天数、导出间隔、输出目录及 FTP（可选）
+4. **Settings** → **Export** → 设置 Entity ID、lookback 天数、导出间隔、输出目录及 FTP（可选）
 5. 托盘菜单 → **Enable** 启用调度
-6. 在 Activity Log 与输出目录中查看 `Catalog_*.csv`
+6. 在 Activity Log 与输出目录中查看 `{entityId}_catalog_*.csv`
 7. 注销并重新登录（或重启）后，确认托盘图标出现且导出调度自动恢复
 
 > 安装 MSI 后，默认会在当前用户登录时自动启动（仅托盘，不弹主窗口）。可在 **Settings → Export** 中取消勾选 **Start with Windows** 关闭。

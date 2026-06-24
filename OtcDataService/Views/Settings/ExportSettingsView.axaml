@@ -16,6 +16,17 @@
 
     <StackPanel Spacing="14">
       <StackPanel Spacing="6">
+        <TextBlock Text="Entity ID" Classes="formLabel" />
+        <TextBox Text="{Binding EntityId}"
+                 Classes="appInput"
+                 MaxLength="50"
+                 Watermark="e.g. STORE001" />
+        <TextBlock Text="Used as the CSV filename prefix. Maximum 50 characters; spaces are not allowed."
+                   Foreground="{StaticResource TextSecondaryBrush}"
+                   FontSize="12" />
+      </StackPanel>
+
+      <StackPanel Spacing="6">
         <TextBlock Text="Sales lookback days" Classes="formLabel" />
         <NumericUpDown Minimum="1"
                        Maximum="3650"
@@ -37,6 +48,18 @@
                        Width="160"
                        HorizontalAlignment="Left" />
         <TextBlock Text="How often a new export document is generated."
+                   Foreground="{StaticResource TextSecondaryBrush}"
+                   FontSize="12" />
+      </StackPanel>
+
+      <StackPanel Spacing="6">
+        <TextBlock Text="Export time" Classes="formLabel" />
+        <TimePicker SelectedTime="{Binding ExportTimeOfDay}"
+                    ClockIdentifier="24HourClock"
+                    Classes="appInput"
+                    Width="160"
+                    HorizontalAlignment="Left" />
+        <TextBlock Text="Local time when scheduled exports run. Works with document interval (e.g. daily at 22:00 after store close)."
                    Foreground="{StaticResource TextSecondaryBrush}"
                    FontSize="12" />
       </StackPanel>
