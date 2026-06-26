@@ -95,14 +95,13 @@ public partial class App : Application
 
             TrayViewModel.InitializeOnStartup();
 
-            if (StartupLaunchMode.IsMinimized)
-            {
-                AppServices.Log.Info("Started minimized to tray (auto-start).");
-            }
-            else
-            {
-                TrayViewModel.ShowMainWindow();
-            }
+            TrayViewModel.HideMainWindowToTray();
+
+            Dispatcher.UIThread.Post(TrayViewModel.HideMainWindowToTray, DispatcherPriority.Loaded);
+
+            AppServices.Log.Info(StartupLaunchMode.IsMinimized
+                ? "Started minimized to tray (auto-start)."
+                : "Started minimized to tray.");
         }
 
         base.OnFrameworkInitializationCompleted();

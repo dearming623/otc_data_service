@@ -129,6 +129,19 @@ public partial class TrayApplicationViewModel : ViewModelBase
         mainWindow.Activate();
     }
 
+    public void HideMainWindowToTray()
+    {
+        if (Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime desktop)
+        {
+            return;
+        }
+
+        if (desktop.MainWindow is MainWindow mainWindow)
+        {
+            mainWindow.Hide();
+        }
+    }
+
     public void ConfigureMainWindow(MainWindow mainWindow)
     {
         mainWindow.DataContext = MainWindowViewModel;
