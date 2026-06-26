@@ -8,7 +8,7 @@
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <RootNamespace>OtcDataService</RootNamespace>
     <AssemblyName>OtcDataService</AssemblyName>
-    <Version>0.2.0</Version>
+    <Version>0.3.0</Version>
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     <ApplicationIcon>Assets\app-icon.ico</ApplicationIcon>
     <!-- ODBC DSN bitness must match process: use x86 build for 32-bit DSN, x64 for 64-bit DSN -->

@@ -25,7 +25,7 @@ public partial class EnterPasswordDialog : Window
     }
 
     public static async Task<bool> ShowAsync(string? title = null, string? prompt = null)
-    {
+    { 
         var resolvedTitle = title ?? DefaultTitle;
         var resolvedPrompt = prompt ?? DefaultPrompt;
 

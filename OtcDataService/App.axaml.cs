@@ -75,7 +75,6 @@ public partial class App : Application
 
             TrayIcon.SetIcons(this, new TrayIcons { trayIcon });
             TrayViewModel.AttachTray(trayIcon, enableMenuItem, settingMenuItem);
-            trayIcon.Clicked += (_, _) => TrayViewModel.ShowMainWindow();
 
             AppServices.Log.Info("OTC Data Service started.");
             AppServices.Log.Info($"Process architecture: {(Environment.Is64BitProcess ? "64-bit" : "32-bit")} (ODBC requires matching DSN bitness).");

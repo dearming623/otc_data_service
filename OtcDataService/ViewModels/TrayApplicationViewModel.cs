@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OtcDataService.Native;
 using OtcDataService.Services;
+using OtcDataService.Util;
 using OtcDataService.Views;
 
 namespace OtcDataService.ViewModels;
@@ -18,6 +19,7 @@ public partial class TrayApplicationViewModel : ViewModelBase
     private NativeMenuItem? _settingMenuItem;
     private TrayIcon? _trayIcon;
     private bool _isExiting;
+    private DateTime? _lastTrayClickTime;
 
     public MainWindowViewModel MainWindowViewModel { get; } = new();
 
@@ -33,6 +35,49 @@ public partial class TrayApplicationViewModel : ViewModelBase
         IsServiceEnabled = AppServices.ExportScheduler.IsRunning;
         UpdateEnableMenuHeader();
         UpdateSettingMenuEnabled();
+        trayIcon.Clicked += OnTrayIconClicked;
+    }
+
+    private void OnTrayIconClicked(object? sender, EventArgs e)
+    {
+        if (!TryConsumeTrayDoubleClick())
+        {
+            return;
+        }
+
+        _ = ShowMainWindowWithPasswordAsync();
+    }
+
+    private bool TryConsumeTrayDoubleClick()
+    {
+        if (_lastTrayClickTime is null)
+        {
+            _lastTrayClickTime = DateTime.UtcNow;
+            return false;
+        }
+
+        var delta = DateTime.UtcNow - _lastTrayClickTime.Value;
+        if (delta.TotalMilliseconds > PlatformHelper.GetDoubleClickTime())
+        {
+            _lastTrayClickTime = DateTime.UtcNow;
+            return false;
+        }
+
+        _lastTrayClickTime = null;
+        return true;
+    }
+
+    private async Task ShowMainWindowWithPasswordAsync()
+    {
+        var confirmed = await EnterPasswordDialog.ShowAsync(
+            "Open Confirmation",
+            "Enter the password to open the main window.");
+        if (!confirmed)
+        {
+            return;
+        }
+
+        ShowMainWindow();
     }
 
     [RelayCommand]
@@ -59,9 +104,17 @@ public partial class TrayApplicationViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void OpenSettings()
+    private async Task OpenSettings()
     {
         if (IsServiceEnabled)
+        {
+            return;
+        }
+
+        var confirmed = await EnterPasswordDialog.ShowAsync(
+            "Open Settings",
+            "Enter the password to open the setting window.");
+        if (!confirmed)
         {
             return;
         }
