@@ -14,7 +14,7 @@
       <StackPanel Spacing="6">
         <TextBlock Text="Start date" Classes="formLabel" />
         <DatePicker SelectedDate="{Binding StartDate}"
-                    IsEnabled="{Binding !IsDateRangeReadOnly}"
+                    IsEnabled="{Binding IsDateInputEnabled}"
                     Width="300"
                     HorizontalAlignment="Left" />
       </StackPanel>
@@ -22,7 +22,7 @@
       <StackPanel Spacing="6">
         <TextBlock Text="End date" Classes="formLabel" />
         <DatePicker SelectedDate="{Binding EndDate}"
-                    IsEnabled="{Binding !IsDateRangeReadOnly}"
+                    IsEnabled="{Binding IsDateInputEnabled}"
                     Width="300"
                     HorizontalAlignment="Left" />
         <TextBlock Text="Date range is based on Sales lookback days in Export settings."
@@ -32,10 +32,24 @@
       </StackPanel>
     </StackPanel>
 
-    <Button Content="Export Now"
+    <TextBlock Text="Export may take a few minutes depending on sales lookback days and database speed."
+               Foreground="{StaticResource TextSecondaryBrush}"
+               FontSize="12"
+               TextWrapping="Wrap" />
+
+    <Button Content="{Binding ExportButtonText}"
             Classes="primary"
             HorizontalAlignment="Left"
             Command="{Binding ExportNowCommand}" />
+
+    <ProgressBar IsIndeterminate="{Binding IsExporting}"
+                 IsVisible="{Binding IsExporting}"
+                 Height="8"
+                 MinHeight="8"
+                 Width="300"
+                 HorizontalAlignment="Left"
+                 Foreground="{StaticResource PrimaryBlueBrush}"
+                 Background="{StaticResource PrimaryBlueLightBrush}" />
 
     <TextBlock Text="{Binding StatusMessage}"
                Foreground="{StaticResource TextSecondaryBrush}"

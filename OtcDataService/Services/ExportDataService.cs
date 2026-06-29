@@ -37,7 +37,8 @@ public sealed class ExportDataService
         CancellationToken cancellationToken = default,
         DateOnly? startDate = null,
         DateOnly? endDate = null,
-        bool updateLastExportUtc = true)
+        bool updateLastExportUtc = true,
+        Action<string>? onStatusChanged = null)
     {
         var config = _configurationService.Current;
         var effectiveStart = startDate ?? DateOnly.FromDateTime(DateTime.Today.AddDays(-config.SalesLookbackDays));
@@ -56,12 +57,15 @@ public sealed class ExportDataService
 
             Directory.CreateDirectory(config.OutputFolder);
 
+            onStatusChanged?.Invoke("Querying sales transactions...");
+
             var pCodes = await _cleanupTrnRepository.ListDistinctCuItemsByDateRangeAsync(
                 effectiveStart,
                 effectiveEnd,
                 cancellationToken);
 
             _logService.Info($"Found {pCodes.Count} distinct product code(s) in CleanupTrn.");
+            onStatusChanged?.Invoke($"Building catalog... ({pCodes.Count} product codes found)");
 
             var depCache = new Dictionary<int, MktDep?>();
             var categoryCache = new Dictionary<int, ItemCategory?>();
@@ -97,6 +101,8 @@ public sealed class ExportDataService
             var fileName = config.BuildCatalogExportFileName(DateTime.Now);
             var filePath = Path.Combine(config.OutputFolder, fileName);
 
+            onStatusChanged?.Invoke("Writing CSV file...");
+
             await CsvWriter.WriteAsync(
                 filePath,
                 CatalogExportRow.Headers,
@@ -106,6 +112,7 @@ public sealed class ExportDataService
             if (config.FtpUploadEnabled)
             {
                 var protocolLabel = RemoteUploadService.GetProtocolLabel(config.UploadProtocol);
+                onStatusChanged?.Invoke($"Uploading via {protocolLabel}...");
                 _logService.Info($"Uploading catalog export via {protocolLabel}...");
                 await _remoteUploadService.UploadFileAsync(config, filePath, cancellationToken);
                 _logService.Info($"Catalog export uploaded via {protocolLabel}: {fileName}.");

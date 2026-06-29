@@ -1,3 +1,4 @@
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OtcDataService.Models;
@@ -8,6 +9,8 @@ namespace OtcDataService.ViewModels;
 public partial class ManualViewModel : ViewModelBase
 {
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ExportButtonText))]
+    [NotifyPropertyChangedFor(nameof(IsDateInputEnabled))]
     private bool _isExporting;
 
     [ObservableProperty]
@@ -20,7 +23,12 @@ public partial class ManualViewModel : ViewModelBase
     private DateTimeOffset? _endDate;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsDateInputEnabled))]
     private bool _isDateRangeReadOnly;
+
+    public string ExportButtonText => IsExporting ? "Exporting..." : "Export Now";
+
+    public bool IsDateInputEnabled => !IsExporting && !IsDateRangeReadOnly;
 
     public ManualViewModel()
     {
@@ -77,16 +85,22 @@ public partial class ManualViewModel : ViewModelBase
         }
 
         IsExporting = true;
-        StatusMessage = "Exporting...";
+        StatusMessage = "Starting export...";
+        await Task.Yield();
 
         try
         {
             var startDate = DateOnly.FromDateTime(StartDate.Value.DateTime);
             var endDate = DateOnly.FromDateTime(EndDate.Value.DateTime).AddDays(1);
-            var success = await AppServices.ExportData.ExportAsync(
-                startDate: startDate,
-                endDate: endDate,
-                updateLastExportUtc: false);
+            var success = await Task.Run(async () =>
+                await AppServices.ExportData.ExportAsync(
+                    startDate: startDate,
+                    endDate: endDate,
+                    updateLastExportUtc: false,
+                    onStatusChanged: status =>
+                    {
+                        Dispatcher.UIThread.Post(() => StatusMessage = status);
+                    }).ConfigureAwait(false));
 
             StatusMessage = success
                 ? "Export completed successfully."
