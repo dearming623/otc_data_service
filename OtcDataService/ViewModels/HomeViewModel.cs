@@ -35,6 +35,10 @@ public partial class HomeViewModel : ViewModelBase
         {
             Manual.ClearStatus();
         }
+        else if (value == HomeSection.Manual)
+        {
+            Manual.RefreshDateRange();
+        }
 
         OnPropertyChanged(nameof(IsActivityLogSelected));
         OnPropertyChanged(nameof(IsManualSelected));

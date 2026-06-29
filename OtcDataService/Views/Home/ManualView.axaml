@@ -4,17 +4,38 @@
              x:Class="OtcDataService.Views.Home.ManualView"
              x:DataType="vm:ManualViewModel">
 
-  <StackPanel Spacing="20">
-    <TextBlock Text="Export today's sales data to a catalog CSV file."
+  <StackPanel Spacing="20" MaxWidth="560">
+    <TextBlock Text="Export sales data for the selected date range to a catalog CSV file."
                Foreground="{StaticResource TextSecondaryBrush}"
                FontSize="13"
                TextWrapping="Wrap" />
 
+    <StackPanel Spacing="14">
+      <StackPanel Spacing="6">
+        <TextBlock Text="Start date" Classes="formLabel" />
+        <DatePicker SelectedDate="{Binding StartDate}"
+                    IsEnabled="{Binding !IsDateRangeReadOnly}"
+                    Width="300"
+                    HorizontalAlignment="Left" />
+      </StackPanel>
+
+      <StackPanel Spacing="6">
+        <TextBlock Text="End date" Classes="formLabel" />
+        <DatePicker SelectedDate="{Binding EndDate}"
+                    IsEnabled="{Binding !IsDateRangeReadOnly}"
+                    Width="300"
+                    HorizontalAlignment="Left" />
+        <TextBlock Text="Date range is based on Sales lookback days in Export settings."
+                   Foreground="{StaticResource TextSecondaryBrush}"
+                   FontSize="12"
+                   TextWrapping="Wrap" />
+      </StackPanel>
+    </StackPanel>
+
     <Button Content="Export Now"
             Classes="primary"
             HorizontalAlignment="Left"
-            Command="{Binding ExportNowCommand}"
-            IsEnabled="{Binding !IsExporting}" />
+            Command="{Binding ExportNowCommand}" />
 
     <TextBlock Text="{Binding StatusMessage}"
                Foreground="{StaticResource TextSecondaryBrush}"

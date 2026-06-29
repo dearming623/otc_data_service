@@ -39,7 +39,7 @@ public sealed class SingleInstanceGuard : IDisposable
         var mutex = new Mutex(true, AppInfo.SingleInstanceMutexName, out var createdNew);
         if (!createdNew)
         {
-            NotifyExistingInstance();
+            //NotifyExistingInstance();
             Win32MessageBox.ShowInfo("The application is already running on this computer.");
             Environment.Exit(0);
             return false;
